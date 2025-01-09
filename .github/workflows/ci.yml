@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install flask
+
+      - name: Run tests
+        run: echo "Test"
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.D_NAME }}
+          password: ${{ secrets.D_PASS }}
+
+      - name: Build Docker image
+        run: docker build -t do-project .
+
+      - name: Tag Docker image
+        run: docker tag do-project marmat1271/do-project
+
+      - name: Push Docker image
+        run: docker push marmat1271/do-project
